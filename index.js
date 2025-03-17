@@ -111,6 +111,7 @@ const editModeInput = register("playerInteract", (action, pos, event) => {
 
 
 const editModeDisplay = register("renderOverlay", () => {
+    if (bigGUI.isOpen()) return;
     Renderer.drawString(renderStr, renderX, renderY);
 }).unregister();
 

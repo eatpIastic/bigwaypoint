@@ -210,8 +210,8 @@ const colorDraw = () => {
             tempSettings.a), 
         Renderer.screen.getWidth() * .55, 
         Renderer.screen.getHeight() * .15 + 5, 
-        80, 
-        80);
+        100, 
+        100);
 }
 
 const clickDetection = register("clicked", (mx, my, button, isDown) => {
@@ -288,6 +288,7 @@ class BigTextbar {
         this.takingInput = false;
         this.strW = Renderer.getStringWidth(this.val);
         this.lastPress = 0;
+        this.displayI = 0;
     }
 
     checkClicked(mx, my) {
@@ -304,7 +305,7 @@ class BigTextbar {
     doInput(char, keyCode) {
         if (!this.takingInput) return;
 
-        if (Date.now() - this.lastPress < 5) return;
+        if (Date.now() - this.lastPress < 2) return;
 
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;
@@ -318,12 +319,13 @@ class BigTextbar {
     }
 
     draw() {
+        this.displayI++;
         if (this.strW > this.w - 5) {
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.strW + 5, this.h);
         } else {
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.w, this.h);
         }
-        Renderer.drawString(`${this.val}`, this.x, this.y + 1);
+        Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 10 != 0 ? "_" : ""}`, this.x, this.y + 1);
     }
 }
 

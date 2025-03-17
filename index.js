@@ -135,9 +135,14 @@ const setBlockInfo = register("hitBlock", (block, event) => {
 }).unregister();
 
 
-register("command", () => {
-    doBigGuiOpen();
-}).setName("bigwp");
+register("command", (...args) => {
+    if (args?.[0] == "reset") {
+        data[Skyblock.area] = {};
+        data.save();
+    } else {
+        doBigGuiOpen();
+    }
+}).setTabCompletions(["reset"]).setName("bigwp");
 
 
 const doBigGuiOpen = () => {
@@ -214,7 +219,7 @@ const createButtons = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
     let h = (Renderer.screen.getHeight() * .15) + 5;
     let locations = [];
-    let settingTypes = ["depth", "fill", "do cmd", "show cmd", "shadow", "background"];
+    let settingTypes = ["depth", "fill", "do cmd", "show cmd", "shadow", "txt bg"];
 
     for (let i = 0; i < settingTypes.length; i++) {
         locations.push(new BigButton(w, h + (25 * i), settingTypes[i]));
@@ -407,7 +412,7 @@ class BigWaypoint {
         this.scale = data?.["scale"] ?? .02;
         this.withinRange = this.showStr && getDistanceToCoord(this.x, this.y, this.z) < this.dist;
         this.shadow = data?.["shadow"];
-        this.background = data?.["background"];
+        this.background = data?.["txt bg"];
     }
 
     checkDist() {

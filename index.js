@@ -306,7 +306,6 @@ class BigTextbar {
         if (!this.takingInput) return;
 
         if (Date.now() - this.lastPress < 2) return;
-        console.log(`${char} ${keyCode}`)
 
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;

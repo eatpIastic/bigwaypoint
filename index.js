@@ -7,9 +7,9 @@ import PogObject from "../PogData";
 
 const data = new PogObject("bigwaypoint", {}, "waypoints.json");
 const tempSettings = new PogObject("bigwaypoint", {
-    r: 0,
-    g: 0,
-    b: 0,
+    r: 79,
+    g: 165,
+    b: 222,
     a: 127
 }, "temp.json");
 const toggleKey = new KeyBind("toggle waypoint edit mode", Keyboard.KEY_NONE, "big");
@@ -165,9 +165,10 @@ const doBigGuiOpen = () => {
         toggledButtonColor: Renderer.color(56, 255, 103, 255),
         command: tempSettings?.command ?? "none"
     };
-    createButtons();
+    createCheckboxes();
     createSliders();
     createTextbars();
+    createButtons();
     clickDetection.register();
     dragDetection.register();
     keyDetection.register();
@@ -195,9 +196,10 @@ const drawBigGUI = () => {
     if (!guiInfo) return;
     Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .55);
 
-    guiInfo.buttons.forEach(b => b.draw());
+    guiInfo.checkboxes.forEach(b => b.draw());
     guiInfo.sliders.forEach(s => s.draw());
     guiInfo.textbars.forEach(t => t.draw());
+    guiInfo.buttons.forEach(b => b.draw());
     colorDraw();
 }
 
@@ -207,34 +209,37 @@ const colorDraw = () => {
             tempSettings.r, 
             tempSettings.g, 
             tempSettings.b, 
-            tempSettings.a), 
+            tempSettings.a
+        ), 
         Renderer.screen.getWidth() * .55, 
         Renderer.screen.getHeight() * .15 + 5, 
-        100, 
-        100);
+        80, 
+        80);
 }
 
 const clickDetection = register("clicked", (mx, my, button, isDown) => {
     if (!isDown) return;
     let clickDone = false;
-    clickDone = guiInfo.buttons.some(b => b.checkClicked(mx, my));
+    clickDone = guiInfo.checkboxes.some(b => b.checkClicked(mx, my));
     if (clickDone) return;
     clickDone = guiInfo.sliders.some(s => s.checkDragged(mx, my));
+    if (clickDone) return;
+    clickDone = guiInfo.buttons.some(b => b.checkClicked(mx, my));
     if (clickDone) return;
     guiInfo.textbars.some(t => t.checkClicked(mx, my)); // dont check this one
 }).unregister();
 
-const createButtons = () => {
+const createCheckboxes = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
     let h = (Renderer.screen.getHeight() * .15) + 5;
     let locations = [];
     let settingTypes = ["depth", "fill", "do cmd", "show cmd", "shadow", "txt bg"];
 
     for (let i = 0; i < settingTypes.length; i++) {
-        locations.push(new BigButton(w, h + (25 * i), settingTypes[i]));
+        locations.push(new BigCheckbox(w, h + (25 * i), settingTypes[i]));
     }
 
-    guiInfo.buttons = locations;
+    guiInfo.checkboxes = locations;
 }
 
 const createSliders = () => {
@@ -266,6 +271,21 @@ const createTextbars = () => {
 
     guiInfo.textbars = locations;
 }
+
+const createButtons = () => {
+    let w = Renderer.screen.getWidth() * .55;
+    let h = (Renderer.screen.getHeight() * .45);
+    let locations = [];
+    let settingTypes = ["reset temp settings", "clear current world"];
+    let settingFunctions = [BigButton.resetTempSettings, BigButton.clearCurrentWorld];
+    
+    for (let i = 0; i < settingTypes.length; i++) {
+        locations.push(new BigButton(w, h + (25 * i), settingTypes[i], settingFunctions[i]));
+    }
+
+    guiInfo.buttons = locations;
+}
+
 
 const dragDetection = register("dragged", (mdx, mdy, mx, my, button) => {
     guiInfo.sliders.forEach(s => s.checkDragged(mx, my));
@@ -312,8 +332,8 @@ class BigTextbar {
 
     doInput(char, keyCode) {
         if (!this.takingInput) return;
-        if (keyCode == 29 || keyCode == 15) return;
-
+        if (keyCode == 29 || keyCode == 15 || keyCode == 42) return;
+        
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;
         } else if (keyCode === 14) {
@@ -382,7 +402,7 @@ class BigSlider {
 
 
 
-class BigButton {
+class BigCheckbox {
     constructor(x, y, name) {
         this.x = x;
         this.y = y;
@@ -465,5 +485,50 @@ class BigWaypoint {
                 [0, 0, 0, 180], this.background, this.scale, false, this.shadow
             );
         }
+    }
+}
+
+
+class BigButton {
+    constructor(x, y, name, action) {
+        this.x = x;
+        this.y = y;
+        this.w = 30
+        this.h = 15;
+        this.name = name;
+        this.action = action;
+        this.strW = Renderer.getStringWidth(this.name);
+    }
+
+    checkClicked(mx, my) {
+        if (mx >= this.x && mx <= this.x + this.strW + 3 && my >= this.y && my <= this.y + this.h) {
+            this.action();
+            return true;
+        }
+        return false;
+    }
+
+    draw() {
+        Renderer.drawRect(Renderer.DARK_GRAY, this.x, this.y, this.strW + 3, this.h);
+        Renderer.drawString(`${this.name}`, this.x + 1.5, this.y + 3);
+    }
+
+    static resetTempSettings() {
+        let keys = Object.keys(tempSettings);
+        for (let i = 0; i < keys.length; i++) {
+            delete tempSettings[keys[i]];
+        }
+        tempSettings.r = 79;
+        tempSettings.g = 165;
+        tempSettings.b = 222;
+        tempSettings.a = 127;
+        doBigGuiOpen();
+        tempSettings.save();
+    }
+
+    static clearCurrentWorld() {
+        delete data[Skyblock.area];
+        data.save();
+        waypointSearch.register();
     }
 }

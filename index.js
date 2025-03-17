@@ -58,6 +58,10 @@ const waypointSearch = register("step", () => {
 register("tick", () => {
     if (toggleKey.isPressed()) swapEditMode();
     if (guiKey.isPressed()) doBigGuiOpen();
+
+    if (currentWorldWaypoints) {
+        currentWorldWaypoints.forEach(w => w.checkDist());
+    }
 });
 
 
@@ -228,7 +232,9 @@ const createSliders = () => {
         locations.push(new BigSlider(w, h + (25 * i), settingTypes[i], 0, 255, tempSettings?.[settingTypes[i]] ?? 127));
     }
 
-    locations.push(new BigSlider(w, h + (25 * settingTypes.length + 1), "scale", 0.01, 0.1, tempSettings?.["scale"] ?? 0.02));
+    
+    locations.push(new BigSlider(w, h + (25 * (settingTypes.length + 0.5)), "scale", 0.01, 0.1, tempSettings?.["scale"] ?? 0.02));
+    locations.push(new BigSlider(w, h + (25 * (settingTypes.length + 1.5)), "dist", 3, 300, tempSettings?.["dist"] ?? 30));
 
     guiInfo.sliders = locations;
 }
@@ -394,8 +400,15 @@ class BigWaypoint {
         this.a = data?.a ?? 127;
         this.depth = data?.depth ?? true;
         
+        this.dist = data?.["dist"] ?? 30;
+        
         this.showStr = data?.["show cmd"];
         this.scale = data?.["scale"] ?? .02;
+        this.withinRange = this.showStr && getDistanceToCoord(this.x, this.y, this.z) < this.dist;
+    }
+
+    checkDist() {
+        this.withinRange = this.showStr && getDistanceToCoord(this.x, this.y, this.z) < this.dist;
     }
 
     commandClickCheck(cx, cy, cz) {
@@ -420,7 +433,7 @@ class BigWaypoint {
             );
         }
 
-        if (this.doCmd && this.showStr && this?.showStr && getDistanceToCoord(this.x, this.y, this.z) < 20) {
+        if (this.showStr && this.withinRange) {
             Render3D.renderString(this.command, this.x + .5, this.y + .5, this.z + .5,
                 [0, 0, 0, 180], true, this.scale, false
             );

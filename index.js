@@ -312,12 +312,13 @@ class BigTextbar {
 
     doInput(char, keyCode) {
         if (!this.takingInput) return;
+        if (keyCode == 29 || keyCode == 15) return;
 
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;
         } else if (keyCode === 14) {
             this.val = this.val.substring(0, this.val.length - 1);
-        } else if (keyCode == 57 || keyCode == 53 || (keyCode >= 16 && keyCode <= 50)) {
+        } else if (keyCode == 57 || keyCode == 53 || keyCode <= 50) {
             this.val += char;
         }
         this.lastPress = Date.now();

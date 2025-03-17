@@ -5,6 +5,11 @@ import { getDistanceToCoord, registerWhen } from "../BloomCore/utils/Utils";
 import { Render3D } from "../tska/rendering/Render3D";
 import PogObject from "../PogData";
 
+const Toolkit = Java.type("java.awt.Toolkit");
+const DataFlavor = Java.type("java.awt.datatransfer.DataFlavor");
+const Base64 = Java.type("java.util.Base64");
+const JavaString = Java.type("java.lang.String");
+
 const data = new PogObject("bigwaypoint", {}, "waypoints.json");
 const tempSettings = new PogObject("bigwaypoint", {
     r: 79,
@@ -276,11 +281,11 @@ const createButtons = () => {
     let w = Renderer.screen.getWidth() * .55;
     let h = (Renderer.screen.getHeight() * .45);
     let locations = [];
-    let settingTypes = ["reset temp settings", "clear current world"];
-    let settingFunctions = [BigButton.resetTempSettings, BigButton.clearCurrentWorld];
+    let settingTypes = ["reset temp settings", "clear current world", "export to clipboard", "import from clipboard"];
+    let settingFunctions = [BigButton.resetTempSettings, BigButton.clearCurrentWorld, BigButton.exportToClipboard, BigButton.importFromClipboard];
     
     for (let i = 0; i < settingTypes.length; i++) {
-        locations.push(new BigButton(w, h + (25 * i), settingTypes[i], settingFunctions[i]));
+        locations.push(new BigButton(w, h + (20 * i), settingTypes[i], settingFunctions[i]));
     }
 
     guiInfo.buttons = locations;
@@ -443,7 +448,7 @@ class BigWaypoint {
         this.g = data?.g ?? 0;
         this.b = data?.b ?? 0;
         this.a = data?.a ?? 127;
-        this.depth = data?.depth ?? true;
+        this.depth = data?.depth ?? false;
         
         this.dist = data?.["dist"] ?? 30;
         
@@ -530,5 +535,42 @@ class BigButton {
         delete data[Skyblock.area];
         data.save();
         waypointSearch.register();
+    }
+
+    static exportToClipboard() {
+        // let encoded = Base64.getEncoder().encodeToString(new JavaString().getBytes());
+        ChatLib.command(`ct copy ${JSON.stringify(data)}`, true);
+    }
+
+    static importFromClipboard() {
+        let clipboard = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+        let bigJSON;
+        try {
+            bigJSON = JSON.parse(clipboard);
+        } catch(e) {
+            ChatLib.chat(`error parsing clipboard json`);
+            return;
+        }
+
+        let bigKeys = Object.keys(bigJSON);
+        for (let i = 0; i < bigKeys.length; i++) {
+            if (data?.[bigKeys[i]]) {
+                data[bigKeys[i]] = BigButton.combine(data[bigKeys[i]], bigJSON[bigKeys[i]]);
+            } else {
+                data[bigKeys[i]] = bigJSON[bigKeys[i]];
+            }
+        }
+        data.save();
+        waypointSearch.register();
+    }
+
+    static combine = (obj1, obj2) => {
+        const result = { ...obj1 };
+
+        Object.keys(obj2).forEach(key => {
+            result[key] = obj2[key];
+        });
+        
+        return result;
     }
 }

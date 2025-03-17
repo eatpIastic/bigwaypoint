@@ -338,7 +338,7 @@ class BigSlider {
         this.minVal = minVal;
         this.maxVal = maxVal;
         this.val = val;
-        this.valStr = (this.val).toFixed(2);
+        this.valStr = Math.round(this.val);
         this.strW = Renderer.getStringWidth(name);
     }
 
@@ -352,7 +352,8 @@ class BigSlider {
             if (this.val < this.minVal) this.val = this.minVal;
             if (this.val > this.maxVal) this.val = this.maxVal;
 
-            this.valStr = (this.val).toFixed(2);
+            this.val = this.val < 1 ? this.val : Math.round(this.val);
+            this.valStr = this.val < 1 ? (this.val).toFixed(2) : this.val;
             tempSettings[this.name] = this.val;
             return true;
         }

@@ -317,6 +317,7 @@ class BigSlider {
         this.minVal = minVal;
         this.maxVal = maxVal;
         this.val = val;
+        this.valStr = (this.val).toFixed(2);
         this.strW = Renderer.getStringWidth(name);
     }
 
@@ -330,6 +331,7 @@ class BigSlider {
             if (this.val < this.minVal) this.val = this.minVal;
             if (this.val > this.maxVal) this.val = this.maxVal;
 
+            this.valStr = (this.val).toFixed(2);
             tempSettings[this.name] = this.val;
             return true;
         }
@@ -337,12 +339,13 @@ class BigSlider {
     }
 
     draw() {
-        Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w + 5, this.h);
+        Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w + 2.5, this.h);
 
         const normalizedPos = (this.val - this.minVal) / (this.maxVal - this.minVal);
         
-        Renderer.drawRect(Renderer.WHITE, this.x + (this.w * normalizedPos), this.y - 1, 5, this.h);
+        Renderer.drawRect(Renderer.WHITE, this.x + (this.w * normalizedPos) - 2.5, this.y - 1, 5, this.h);
         Renderer.drawString(`${this.name}`, this.x - 3 - this.strW, this.y);
+        Renderer.drawString(`${this.valStr}`, this.x + (this.w * 0.25), this.y + (this.h * 0.25), true);
     }
 }
 

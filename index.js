@@ -242,7 +242,7 @@ const createSliders = () => {
 
 const createTextbars = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
-    let h = (Renderer.screen.getHeight() * .6);
+    let h = (Renderer.screen.getHeight() * .65);
     let locations = [];
     let settingTypes = ["command"];
 
@@ -309,7 +309,7 @@ class BigTextbar {
         } else {
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.w, this.h);
         }
-        Renderer.drawString(`${this.val}`, this.x, this.y);
+        Renderer.drawString(`${this.val}`, this.x, this.y + 1);
     }
 }
 

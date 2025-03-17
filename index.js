@@ -98,7 +98,7 @@ const editModeInput = register("playerInteract", (action, pos, event) => {
         delete data[Skyblock.area][str];
         waypointSearch.register();
     } else if (!data[Skyblock.area]?.[str]) {
-        data[Skyblock.area][str] = {};
+        data[Skyblock.area][str] = { ...tempSettings };
         waypointSearch.register();
     }
 
@@ -336,7 +336,7 @@ class BigSlider {
     draw() {
         Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w, this.h);
         Renderer.drawRect(Renderer.WHITE, this.x + (this.w * (this.val / this.maxVal)), this.y - 1, 5, this.h);
-        Renderer.drawString(`${this.name}`, this.x - 6, this.y);
+        Renderer.drawString(`${this.name}`, this.x - 6 , this.y);
     }
 }
 
@@ -389,7 +389,7 @@ class BigWaypoint {
     }
 
     commandClickCheck(cx, cy, cz) {
-        if (!this.doCmd || !this.command || this.command == "") return false;
+        if (editMode || !this.doCmd || !this.command || this.command == "") return false;
         if (this.x == cx && this.y == cy && this.z == cz) {
             ChatLib.command(`${this.command}`);
             return true;

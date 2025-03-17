@@ -434,7 +434,7 @@ class BigWaypoint {
         }
 
         if (this.showStr && this.withinRange) {
-            Render3D.renderString(this.command, this.x + .5, this.y + .5, this.z + .5,
+            Render3D.renderString(this.command, this.x + .5, this.y + .75, this.z + .5,
                 [0, 0, 0, 180], true, this.scale, false
             );
         }

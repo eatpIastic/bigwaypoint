@@ -549,7 +549,10 @@ class BigButton {
             return;
         }
 
+        if (!bigJSON) return;
+
         let bigKeys = Object.keys(bigJSON);
+        if (!bigKeys) return;
         for (let i = 0; i < bigKeys.length; i++) {
             if (data?.[bigKeys[i]]) {
                 data[bigKeys[i]] = BigButton.combine(data[bigKeys[i]], bigJSON[bigKeys[i]]);
@@ -562,6 +565,7 @@ class BigButton {
     }
 
     static combine = (obj1, obj2) => {
+        if (typeof obj1 !== "object" || typeof obj2 !== "object") return;
         const result = { ...obj1 };
 
         Object.keys(obj2).forEach(key => {
@@ -571,3 +575,4 @@ class BigButton {
         return result;
     }
 }
+

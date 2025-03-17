@@ -171,11 +171,11 @@ const doBigGuiOpen = () => {
     clickDetection.register();
     dragDetection.register();
     keyDetection.register();
+    bigGuiDisplay.register();
 }
 
 let guiInfo;
 
-bigGUI.registerOpened( () => bigGuiDisplay.register());
 bigGUI.registerClosed( () => {
     guiInfo.textbars.forEach(t => tempSettings[t.name] = t.val);
     bigGuiDisplay.unregister();
@@ -261,7 +261,7 @@ const createTextbars = () => {
     let settingTypes = ["command"];
 
     for (let i = 0; i < settingTypes.length; i++) {
-        locations.push(new BigTextbar(w, h + (20 * i), settingTypes[i], tempSettings?.[settingTypes[i]] ?? "command"));
+        locations.push(new BigTextbar(w, h + (20 * i), settingTypes[i], tempSettings?.[settingTypes[i]] ?? settingTypes[i]));
     }
 
     guiInfo.textbars = locations;
@@ -272,7 +272,15 @@ const dragDetection = register("dragged", (mdx, mdy, mx, my, button) => {
 }).unregister();
 
 
+let delay = 0;
+let lastKey = 0;
 const keyDetection = register("guiKey", (char, keyCode, gui, event) => {
+    if (Date.now() - delay <= 1 && lastKey == keyCode) {
+        lastKey = keyCode;
+        return;
+    }
+    lastKey = keyCode;
+    delay = Date.now();
     guiInfo.textbars.forEach(t => t.doInput(char, keyCode));
 }).unregister();
 
@@ -304,8 +312,6 @@ class BigTextbar {
 
     doInput(char, keyCode) {
         if (!this.takingInput) return;
-
-        if (Date.now() - this.lastPress < 2) return;
 
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;

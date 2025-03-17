@@ -214,7 +214,7 @@ const createButtons = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
     let h = (Renderer.screen.getHeight() * .15) + 5;
     let locations = [];
-    let settingTypes = ["depth", "fill", "do cmd", "show cmd"];
+    let settingTypes = ["depth", "fill", "do cmd", "show cmd", "shadow", "background"];
 
     for (let i = 0; i < settingTypes.length; i++) {
         locations.push(new BigButton(w, h + (25 * i), settingTypes[i]));
@@ -406,6 +406,8 @@ class BigWaypoint {
         this.showStr = data?.["show cmd"];
         this.scale = data?.["scale"] ?? .02;
         this.withinRange = this.showStr && getDistanceToCoord(this.x, this.y, this.z) < this.dist;
+        this.shadow = data?.["shadow"];
+        this.background = data?.["background"];
     }
 
     checkDist() {
@@ -436,7 +438,7 @@ class BigWaypoint {
 
         if (this.showStr && this.withinRange) {
             Render3D.renderString(this.command, this.x + .5, this.y + .75, this.z + .5,
-                [0, 0, 0, 180], true, this.scale, false
+                [0, 0, 0, 180], this.background, this.scale, false, this.shadow
             );
         }
     }

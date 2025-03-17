@@ -540,9 +540,9 @@ class BigButton {
     }
 
     static importFromClipboard() {
-        let clipboard = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
         let bigJSON;
         try {
+            let clipboard = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
             bigJSON = JSON.parse(clipboard);
         } catch(e) {
             ChatLib.chat(`error parsing clipboard json`);

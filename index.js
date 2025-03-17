@@ -7,8 +7,6 @@ import PogObject from "../PogData";
 
 const Toolkit = Java.type("java.awt.Toolkit");
 const DataFlavor = Java.type("java.awt.datatransfer.DataFlavor");
-const Base64 = Java.type("java.util.Base64");
-const JavaString = Java.type("java.lang.String");
 
 const data = new PogObject("bigwaypoint", {}, "waypoints.json");
 const tempSettings = new PogObject("bigwaypoint", {
@@ -271,7 +269,7 @@ const createTextbars = () => {
     let settingTypes = ["command"];
 
     for (let i = 0; i < settingTypes.length; i++) {
-        locations.push(new BigTextbar(w, h + (20 * i), settingTypes[i], tempSettings?.[settingTypes[i]] ?? settingTypes[i]));
+        locations.push(new BigTextbar(w, h + (20 * i), settingTypes[i], tempSettings?.[settingTypes[i]] ?? false));
     }
 
     guiInfo.textbars = locations;
@@ -538,7 +536,6 @@ class BigButton {
     }
 
     static exportToClipboard() {
-        // let encoded = Base64.getEncoder().encodeToString(new JavaString().getBytes());
         ChatLib.command(`ct copy ${JSON.stringify(data)}`, true);
     }
 

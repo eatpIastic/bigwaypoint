@@ -56,6 +56,14 @@ const waypointSearch = register("step", () => {
 
 
 register("tick", () => {
+    if (!Skyblock.inSkyblock) {
+        if (editMode) {
+            swapEditMode();
+        }
+        return;
+    }
+
+
     if (toggleKey.isPressed()) swapEditMode();
     if (guiKey.isPressed()) doBigGuiOpen();
 
@@ -84,7 +92,7 @@ const swapEditMode = () => {
 }
 
 register("playerInteract", (action, pos, event) => {
-    if(action.toString() !== "RIGHT_CLICK_BLOCK") return;
+    if(action.toString() !== "RIGHT_CLICK_BLOCK" || !Skyblock.inSkyblock || !Skyblock.area || !currentWorldWaypoints) return;
 
     let [x, y, z] = [pos.getX(), pos.getY(), pos.getZ()];
 

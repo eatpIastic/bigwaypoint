@@ -139,6 +139,7 @@ register("command", (...args) => {
     if (args?.[0] == "reset") {
         data[Skyblock.area] = {};
         data.save();
+        waypointSearch.register();
     } else {
         doBigGuiOpen();
     }

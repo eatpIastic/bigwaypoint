@@ -6,7 +6,12 @@ import { Render3D } from "../tska/rendering/Render3D";
 import PogObject from "../PogData";
 
 const data = new PogObject("bigwaypoint", {}, "waypoints.json");
-const tempSettings = new PogObject("bigwaypoint", {}, "tempsettings.json");
+const tempSettings = new PogObject("bigwaypoint", {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 127
+}, "temp.json");
 const toggleKey = new KeyBind("toggle waypoint edit mode", Keyboard.KEY_NONE, "big");
 const guiKey = new KeyBind("open edit gui", Keyboard.KEY_NONE, "big");
 const bigGUI = new Gui();
@@ -96,7 +101,7 @@ const editModeInput = register("playerInteract", (action, pos, event) => {
         data[Skyblock.area][str] = {};
         waypointSearch.register();
     }
-    
+
     data.save();
 }).unregister();
 
@@ -204,7 +209,7 @@ const createButtons = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
     let h = (Renderer.screen.getHeight() * .15) + 5;
     let locations = [];
-    let settingTypes = ["depth", "fill", "do command", "show cmd"];
+    let settingTypes = ["depth", "fill", "do cmd", "show cmd"];
 
     for (let i = 0; i < settingTypes.length; i++) {
         locations.push(new BigButton(w, h + (25 * i), settingTypes[i]));
@@ -331,7 +336,7 @@ class BigSlider {
     draw() {
         Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w, this.h);
         Renderer.drawRect(Renderer.WHITE, this.x + (this.w * (this.val / this.maxVal)), this.y - 1, 5, this.h);
-        Renderer.drawString(`${this.name}`, this.x, this.y);
+        Renderer.drawString(`${this.name}`, this.x - 6, this.y);
     }
 }
 
@@ -361,13 +366,15 @@ class BigButton {
     }
 }
 
+
 class BigWaypoint {
     constructor(x, y, z, data) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.block = World.getBlockAt(x, y, z);
-        this.command = data?.command;
+        this.doCmd = data?.["do cmd"] || data?.["do command"];
+        this.command = data?.["command"];
         this.fill = data?.fill;
         
         this.str = data?.str;
@@ -382,7 +389,7 @@ class BigWaypoint {
     }
 
     commandClickCheck(cx, cy, cz) {
-        if (!this.command || this.command == "") return false;
+        if (!this.doCmd || !this.command || this.command == "") return false;
         if (this.x == cx && this.y == cy && this.z == cz) {
             ChatLib.command(`${this.command}`);
             return true;
@@ -403,7 +410,7 @@ class BigWaypoint {
             );
         }
 
-        if (this.showStr && getDistanceToCoord(this.x, this.y, this.z) < 20) {
+        if (this.doCmd && this.showStr && this?.showStr && getDistanceToCoord(this.x, this.y, this.z) < 20) {
             Render3D.renderString(this.command, this.x + .5, this.y + .5, this.z + .5);
         }
     }

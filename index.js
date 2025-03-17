@@ -306,12 +306,13 @@ class BigTextbar {
         if (!this.takingInput) return;
 
         if (Date.now() - this.lastPress < 2) return;
+        console.log(`${char} ${keyCode}`)
 
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;
         } else if (keyCode === 14) {
             this.val = this.val.substring(0, this.val.length - 1);
-        } else {
+        } else if (keyCode == 57 || keyCode == 53 || (keyCode >= 16 && keyCode <= 50)) {
             this.val += char;
         }
         this.lastPress = Date.now();
@@ -325,7 +326,7 @@ class BigTextbar {
         } else {
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.w, this.h);
         }
-        Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 10 != 0 ? "_" : ""}`, this.x, this.y + 1);
+        Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 10 != 0 ? "_" : ""}`, this.x, this.y + 1, true);
     }
 }
 

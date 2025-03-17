@@ -228,6 +228,8 @@ const createSliders = () => {
         locations.push(new BigSlider(w, h + (25 * i), settingTypes[i], 0, 255, tempSettings?.[settingTypes[i]] ?? 127));
     }
 
+    locations.push(new BigSlider(w, h + (25 * settingTypes.length + 1), "scale", 0.01, 0.1, tempSettings?.["scale"] ?? 0.02));
+
     guiInfo.sliders = locations;
 }
 
@@ -315,6 +317,7 @@ class BigSlider {
         this.minVal = minVal;
         this.maxVal = maxVal;
         this.val = val;
+        this.strW = Renderer.getStringWidth(name);
     }
 
     checkDragged(mx, my) {
@@ -334,9 +337,12 @@ class BigSlider {
     }
 
     draw() {
-        Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w, this.h);
-        Renderer.drawRect(Renderer.WHITE, this.x + (this.w * (this.val / this.maxVal)), this.y - 1, 5, this.h);
-        Renderer.drawString(`${this.name}`, this.x - 6 , this.y);
+        Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w + 5, this.h);
+
+        const normalizedPos = (this.val - this.minVal) / (this.maxVal - this.minVal);
+        
+        Renderer.drawRect(Renderer.WHITE, this.x + (this.w * normalizedPos), this.y - 1, 5, this.h);
+        Renderer.drawString(`${this.name}`, this.x - 3 - this.strW, this.y);
     }
 }
 
@@ -386,6 +392,7 @@ class BigWaypoint {
         this.depth = data?.depth ?? true;
         
         this.showStr = data?.["show cmd"];
+        this.scale = data?.["scale"] ?? .02;
     }
 
     commandClickCheck(cx, cy, cz) {
@@ -411,7 +418,9 @@ class BigWaypoint {
         }
 
         if (this.doCmd && this.showStr && this?.showStr && getDistanceToCoord(this.x, this.y, this.z) < 20) {
-            Render3D.renderString(this.command, this.x + .5, this.y + .5, this.z + .5);
+            Render3D.renderString(this.command, this.x + .5, this.y + .5, this.z + .5,
+                [0, 0, 0, 180], true, this.scale, false
+            );
         }
     }
 }

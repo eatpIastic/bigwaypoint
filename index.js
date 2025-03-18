@@ -197,6 +197,8 @@ const bigGuiDisplay = register("renderOverlay", () => {
 
 const drawBigGUI = () => {
     if (!guiInfo) return;
+
+    Tessellator.pushMatrix();
     Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .55);
 
     guiInfo.checkboxes.forEach(b => b.draw());
@@ -204,6 +206,7 @@ const drawBigGUI = () => {
     guiInfo.textbars.forEach(t => t.draw());
     guiInfo.buttons.forEach(b => b.draw());
     colorDraw();
+    Tessellator.popMatrix();
 }
 
 const colorDraw = () => {
@@ -315,7 +318,7 @@ class BigTextbar {
         this.w = 120;
         this.h = 15;
         this.name = name;
-        this.val = val;
+        this.val = val || "command";
         this.takingInput = false;
         this.strW = Renderer.getStringWidth(this.val);
         this.lastPress = 0;

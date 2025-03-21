@@ -289,7 +289,6 @@ bigGUI.registerMouseDragged( (mx, my, clickedMouseButton, timeSinceLastClick) =>
 
 
 bigGUI.registerKeyTyped( (typed, key) => {
-    console.log(key)
     if (key == 1) return;
     guiInfo.textbars.forEach(t => t.doInput(typed, key));
 });

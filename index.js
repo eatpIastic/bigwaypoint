@@ -172,33 +172,25 @@ const doBigGuiOpen = () => {
     createSliders();
     createTextbars();
     createButtons();
-    clickDetection.register();
-    dragDetection.register();
-    keyDetection.register();
-    bigGuiDisplay.register();
 }
 
 let guiInfo;
 
 bigGUI.registerClosed( () => {
     guiInfo.textbars.forEach(t => tempSettings[t.name] = t.val);
-    bigGuiDisplay.unregister();
-    clickDetection.unregister();
-    dragDetection.unregister();
-    keyDetection.unregister();
     guiInfo = undefined;
     tempSettings.save();
 });
 
-const bigGuiDisplay = register("renderOverlay", () => {
+
+bigGUI.registerDraw( (mx, my, partialTicks) => {
     drawBigGUI();
-}).unregister();
+});
 
 
 const drawBigGUI = () => {
     if (!guiInfo) return;
 
-    Tessellator.pushMatrix();
     Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .55);
 
     guiInfo.checkboxes.forEach(b => b.draw());
@@ -206,7 +198,6 @@ const drawBigGUI = () => {
     guiInfo.textbars.forEach(t => t.draw());
     guiInfo.buttons.forEach(b => b.draw());
     colorDraw();
-    Tessellator.popMatrix();
 }
 
 const colorDraw = () => {
@@ -223,9 +214,8 @@ const colorDraw = () => {
         80);
 }
 
-const clickDetection = register("clicked", (mx, my, button, isDown) => {
-    if (!isDown) return;
-    let clickDone = false;
+bigGUI.registerClicked( (mx, my, button) => {
+        let clickDone = false;
     clickDone = guiInfo.checkboxes.some(b => b.checkClicked(mx, my));
     if (clickDone) return;
     clickDone = guiInfo.sliders.some(s => s.checkDragged(mx, my));
@@ -233,7 +223,7 @@ const clickDetection = register("clicked", (mx, my, button, isDown) => {
     clickDone = guiInfo.buttons.some(b => b.checkClicked(mx, my));
     if (clickDone) return;
     guiInfo.textbars.some(t => t.checkClicked(mx, my)); // dont check this one
-}).unregister();
+});
 
 const createCheckboxes = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
@@ -293,22 +283,16 @@ const createButtons = () => {
 }
 
 
-const dragDetection = register("dragged", (mdx, mdy, mx, my, button) => {
+bigGUI.registerMouseDragged( (mx, my, clickedMouseButton, timeSinceLastClick) => {
     guiInfo.sliders.forEach(s => s.checkDragged(mx, my));
-}).unregister();
+})
 
 
-let delay = 0;
-let lastKey = 0;
-const keyDetection = register("guiKey", (char, keyCode, gui, event) => {
-    if (Date.now() - delay <= 1 && lastKey == keyCode) {
-        lastKey = keyCode;
-        return;
-    }
-    lastKey = keyCode;
-    delay = Date.now();
-    guiInfo.textbars.forEach(t => t.doInput(char, keyCode));
-}).unregister();
+bigGUI.registerKeyTyped( (typed, key) => {
+    console.log(key)
+    if (key == 1) return;
+    guiInfo.textbars.forEach(t => t.doInput(typed, key));
+});
 
 
 class BigTextbar {
@@ -338,13 +322,16 @@ class BigTextbar {
 
     doInput(char, keyCode) {
         if (!this.takingInput) return;
-        if (keyCode == 29 || keyCode == 15 || keyCode == 42) return;
-        
+        // if (keyCode == 29 || keyCode == 15 || keyCode == 42) return;
+        if (keyCode == 29 || keyCode == 56 || keyCode == 219 || keyCode == 58 || keyCode == 15
+            || keyCode == 157 || keyCode == 220
+        ) return;
         if (keyCode === 28 || keyCode === 1) {
             tempSettings[this.name] = this.val;
         } else if (keyCode === 14) {
             this.val = this.val.substring(0, this.val.length - 1);
-        } else if (keyCode == 57 || keyCode == 53 || keyCode <= 50) {
+        // } else if (keyCode == 57 || keyCode == 53 || keyCode <= 50) {
+        } else {
             this.val += char;
         }
         this.lastPress = Date.now();
@@ -358,7 +345,7 @@ class BigTextbar {
         } else {
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.w, this.h);
         }
-        Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 10 != 0 ? "_" : ""}`, this.x, this.y + 1, true);
+        Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 90 <= 45 ? "_" : ""}`, this.x, this.y + 1, true);
     }
 }
 
@@ -475,21 +462,27 @@ class BigWaypoint {
 
     draw() {
         if (!this.fill) {
+            Tessellator.pushMatrix();
             Render3D.outlineBlock(
                 this.block,
                 this.r, this.g, this.b, this.a, this.depth
             );
+            Tessellator.popMatrix();
         } else if (this.fill) {
+            Tessellator.pushMatrix();
             Render3D.filledBlock(
                 this.block,
                 this.r, this.g, this.b, this.a, this.depth
             );
+            Tessellator.popMatrix();
         }
 
         if (this.showStr && this.withinRange) {
+            Tessellator.pushMatrix();
             Render3D.renderString(this.command, this.x + .5, this.y + .75, this.z + .5,
                 [0, 0, 0, 180], this.background, this.scale, false, this.shadow
             );
+            Tessellator.popMatrix();
         }
     }
 }

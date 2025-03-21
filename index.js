@@ -1,7 +1,7 @@
 /// <reference types="../CTAutocomplete" />
 
 import Skyblock from "../BloomCore/Skyblock";
-import { getDistanceToCoord, registerWhen } from "../BloomCore/utils/Utils";
+import { getDistanceToCoord } from "../BloomCore/utils/Utils";
 import { Render3D } from "../tska/rendering/Render3D";
 import PogObject from "../PogData";
 
@@ -123,7 +123,9 @@ const editModeInput = register("playerInteract", (action, pos, event) => {
 
 const editModeDisplay = register("renderOverlay", () => {
     if (bigGUI.isOpen()) return;
+    Tessellator.pushMatrix();
     Renderer.drawString(renderStr, renderX, renderY);
+    Tessellator.popMatrix();
 }).unregister();
 
 
@@ -191,7 +193,10 @@ bigGUI.registerDraw( (mx, my, partialTicks) => {
 const drawBigGUI = () => {
     if (!guiInfo) return;
 
-    Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .55);
+    Tessellator.pushMatrix();
+    // Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .55);
+    Renderer.drawRect(guiInfo.gray, guiInfo.w * .2, guiInfo.h * .15, guiInfo.w * .6, guiInfo.h * .7);
+    Tessellator.popMatrix();
 
     guiInfo.checkboxes.forEach(b => b.draw());
     guiInfo.sliders.forEach(s => s.draw());
@@ -201,6 +206,7 @@ const drawBigGUI = () => {
 }
 
 const colorDraw = () => {
+    Tessellator.pushMatrix();
     Renderer.drawRect(
         Renderer.color(
             tempSettings.r, 
@@ -208,10 +214,11 @@ const colorDraw = () => {
             tempSettings.b, 
             tempSettings.a
         ), 
-        Renderer.screen.getWidth() * .55, 
-        Renderer.screen.getHeight() * .15 + 5, 
-        80, 
-        80);
+        guiInfo.w * .65,
+        (guiInfo.h * .15) + 5,
+        guiInfo.h * .2,
+        guiInfo.h * .2);
+    Tessellator.popMatrix();
 }
 
 bigGUI.registerClicked( (mx, my, button) => {
@@ -257,7 +264,7 @@ const createSliders = () => {
 
 const createTextbars = () => {
     let w = (Renderer.screen.getWidth() * .2) + 5;
-    let h = (Renderer.screen.getHeight() * .65);
+    let h = (Renderer.screen.getHeight() * .75);
     let locations = [];
     let settingTypes = ["command"];
 
@@ -269,7 +276,7 @@ const createTextbars = () => {
 }
 
 const createButtons = () => {
-    let w = Renderer.screen.getWidth() * .55;
+    let w = Renderer.screen.getWidth() * .6;
     let h = (Renderer.screen.getHeight() * .45);
     let locations = [];
     let settingTypes = ["reset temp settings", "clear current world", "export to clipboard", "import from clipboard"];
@@ -340,11 +347,17 @@ class BigTextbar {
     draw() {
         this.displayI++;
         if (this.strW > this.w - 5) {
+            Tessellator.pushMatrix();
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.strW + 5, this.h);
+            Tessellator.popMatrix();
         } else {
+            Tessellator.pushMatrix();
             Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 2, this.w, this.h);
+            Tessellator.popMatrix();
         }
+        Tessellator.pushMatrix();
         Renderer.drawString(`${this.val}${this.takingInput && this.displayI % 90 <= 45 ? "_" : ""}`, this.x, this.y + 1, true);
+        Tessellator.popMatrix();
     }
 }
 
@@ -382,6 +395,7 @@ class BigSlider {
     }
 
     draw() {
+        Tessellator.pushMatrix();
         Renderer.drawRect(guiInfo.lightGray, this.x, this.y - 1, this.w + 2.5, this.h);
 
         const normalizedPos = (this.val - this.minVal) / (this.maxVal - this.minVal);
@@ -389,6 +403,7 @@ class BigSlider {
         Renderer.drawRect(Renderer.WHITE, this.x + (this.w * normalizedPos) - 2.5, this.y - 1, 5, this.h);
         Renderer.drawString(`${this.name}`, this.x - 3 - this.strW, this.y);
         Renderer.drawString(`${this.valStr}`, this.x + (this.w * 0.25), this.y + (this.h * 0.25), true);
+        Tessellator.popMatrix();
     }
 }
 
@@ -412,9 +427,11 @@ class BigCheckbox {
     }
 
     draw() {
+        Tessellator.pushMatrix();
         Renderer.drawRect(guiInfo.lightGray, this.x - 1, this.y - 1, 75, 22);
         Renderer.drawRect(this.toggled ? guiInfo.toggledButtonColor : guiInfo.buttonBackground, this.x, this.y, 20, 20);
         Renderer.drawString(this.name, this.x + 22, this.y + 6);
+        Tessellator.popMatrix();
     }
 }
 
@@ -507,8 +524,10 @@ class BigButton {
     }
 
     draw() {
+        Tessellator.pushMatrix();
         Renderer.drawRect(Renderer.DARK_GRAY, this.x, this.y, this.strW + 3, this.h);
         Renderer.drawString(`${this.name}`, this.x + 1.5, this.y + 3);
+        Tessellator.popMatrix();
     }
 
     static resetTempSettings() {
